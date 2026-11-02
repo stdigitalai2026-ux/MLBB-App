@@ -22,7 +22,26 @@ jobs:
         mkdir -p app/src/main/java/com/mlbb/app
         mkdir -p app/src/main/res/values
         
-        # File build.gradle di folder app
+        # 1. File build.gradle (root)
+        cat << 'EOF' > build.gradle
+        buildscript {
+            repositories {
+                google()
+                mavenCentral()
+            }
+            dependencies {
+                classpath 'com.android.tools.build:gradle:8.1.0'
+            }
+        }
+        allprojects {
+            repositories {
+                google()
+                mavenCentral()
+            }
+        }
+        EOF
+        
+        # 2. File app/build.gradle
         cat << 'EOF' > app/build.gradle
         plugins { id 'com.android.application' }
         android {
@@ -38,7 +57,7 @@ jobs:
         }
         EOF
         
-        # File AndroidManifest.xml
+        # 3. File AndroidManifest.xml
         cat << 'EOF' > app/src/main/AndroidManifest.xml
         <?xml version="1.0" encoding="utf-8"?>
         <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -54,7 +73,7 @@ jobs:
         </manifest>
         EOF
         
-        # File MainActivity.kt
+        # 4. File MainActivity.kt
         cat << 'EOF' > app/src/main/java/com/mlbb/app/MainActivity.kt
         package com.mlbb.app
         import android.app.Activity
@@ -74,16 +93,16 @@ jobs:
         }
         EOF
         
-        # File settings.gradle
+        # 5. File settings.gradle
         echo "rootProject.name = 'MLBBApp'" > settings.gradle
         echo "include ':app'" >> settings.gradle
         
-        # File build.gradle (root)
-        echo "buildscript { dependencies { classpath 'com.android.tools.build:gradle:8.1.0' } }" > build.gradle
+        # 6. File pengaturan SDK
+        echo "sdk.dir=/usr/local/lib/android/sdk" > local.properties
 
     - name: Build APK with Gradle
       run: |
-        # Instal Gradle secara mandiri agar tidak error
+        # Download Gradle dan build tanpa wrapper
         curl -sL https://services.gradle.org/distributions/gradle-8.2-bin.zip -o gradle.zip
         unzip -q gradle.zip
         ./gradle-8.2/bin/gradle assembleDebug
